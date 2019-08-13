@@ -1,10 +1,8 @@
 package com.endava.server.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 public class Transfer implements Serializable {
@@ -16,5 +14,8 @@ public class Transfer implements Serializable {
     private UserAccount sender;
 
     private UserAccount recipient;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date transferredAt;
 
 }

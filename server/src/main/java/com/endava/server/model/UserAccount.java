@@ -1,14 +1,15 @@
 package com.endava.server.model;
 
-import lombok.Data;
-import org.javamoney.moneta.Money;
+import lombok.Getter;
+import lombok.Setter;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
+
 @Entity
 public class UserAccount implements Serializable {
 
@@ -16,12 +17,21 @@ public class UserAccount implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
     @ManyToOne
     private User user;
 
-    private String currencyCode;
+    @Getter
+    private String currencyCode; // has no setter, cannot be changed after init
 
-    private BigDecimal amount;
+    @Setter
+    @Getter
+    public @PositiveOrZero BigDecimal balance;
+
+
+
+
 
 
 }
+
