@@ -37,6 +37,9 @@ public class UserService {
         return userDTO; // probably wrong
     }
 
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
 
 
 }
