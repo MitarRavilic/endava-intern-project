@@ -2,33 +2,31 @@ package com.endava.server.util;
 
 import com.endava.server.model.Transfer;
 import com.endava.server.model.UserAccount;
-import com.endava.server.repository.UserAccountRepository;
 import org.javamoney.moneta.Money;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.money.MonetaryAmount;
 import javax.money.convert.CurrencyConversion;
 import javax.money.convert.MonetaryConversions;
 
-
+@Component
 public class MoneyUtility {
 
 
     //Convert balance to Money
-    public Money getMonetaryAmountFromUserAccount(UserAccount userAccount) {
+    public Money getMoneyFromUserAccount(UserAccount userAccount) {
         return Money.of(userAccount.getBalance(), userAccount.getCurrencyCode());
     }
 
     // check if two accounts use same currency
     public boolean checkUserAccountCurrencyMatch(UserAccount account1, UserAccount account2){
-        return account1.getCurrencyCode()==account2.getCurrencyCode();
+        return account1.getCurrencyCode().equals(account2.getCurrencyCode());
     }
 
-    public UserAccount setUserAccountBalanceFromMoney(UserAccount userAccount, Money money) throws Exception {
-        if(userAccount.getCurrencyCode() == money.getCurrency().getCurrencyCode()){
+    public UserAccount setUserAccountBalanceFromMoney(UserAccount userAccount, Money money) {
+        //if(userAccount.getCurrencyCode() == money.getCurrency().getCurrencyCode()){
             userAccount.setBalance(money.getNumberStripped());
             return userAccount;
-        } else {throw new Exception("currency mismatch");} // write CurrencyMismatchException and swap
+        //} else {throw new Exception("currency mismatch");} // write CurrencyMismatchException and swap
     }
     // Convert money
     public Money convertMoney(Money money, String targetCurrencyCode){
@@ -36,13 +34,19 @@ public class MoneyUtility {
         return money.with(conversion);
     }
 
-    public void transferMoney(UserAccount sender, UserAccount recipient, Money amount) throws Exception {
-        try {
-            if (checkUserAccountCurrencyMatch(sender, recipient)) {
-                UserAccount senderAccount = setUserAccountBalanceFromMoney(sender, getMonetaryAmountFromUserAccount(sender).subtract(amount));
-            }
-        } catch (Exception e){}
+    //
+    public void transferMoney(UserAccount sender, UserAccount recipient, Money amount){
+        UserAccount senderAccount;
+        UserAccount recipientAccount;
+        if (checkUserAccountCurrencyMatch(sender, recipient)) {
+            senderAccount = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(amount));
+            recipientAccount = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(amount));
+        } else {
+            sender = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(amount));
+            recipient = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(convertMoney(amount, recipient.getCurrencyCode())));
+        }
     }
+
 
 
 
