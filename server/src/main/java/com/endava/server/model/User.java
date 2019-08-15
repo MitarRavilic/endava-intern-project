@@ -1,6 +1,7 @@
 package com.endava.server.model;
 
 import com.endava.server.dto.UserDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,10 +10,11 @@ import javax.persistence.*;
 import javax.validation.Constraint;
 import java.io.Serializable;
 
-@Entity
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class User implements Serializable {
 
     @Id
@@ -23,6 +25,7 @@ public class User implements Serializable {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
 

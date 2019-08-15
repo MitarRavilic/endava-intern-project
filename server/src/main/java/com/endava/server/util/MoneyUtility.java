@@ -3,6 +3,7 @@ package com.endava.server.util;
 import com.endava.server.model.Transfer;
 import com.endava.server.model.UserAccount;
 import org.javamoney.moneta.Money;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.money.convert.CurrencyConversion;
@@ -34,17 +35,18 @@ public class MoneyUtility {
         return money.with(conversion);
     }
 
-    //
-    public void transferMoney(UserAccount sender, UserAccount recipient, Money amount){
+    // return sender-recipient pair
+    public Pair<UserAccount, UserAccount> transferMoney(UserAccount sender, UserAccount recipient, Money amount){
         UserAccount senderAccount;
         UserAccount recipientAccount;
         if (checkUserAccountCurrencyMatch(sender, recipient)) {
             senderAccount = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(amount));
             recipientAccount = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(amount));
         } else {
-            sender = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(amount));
-            recipient = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(convertMoney(amount, recipient.getCurrencyCode())));
+            senderAccount = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(amount));
+            recipientAccount = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(convertMoney(amount, recipient.getCurrencyCode())));
         }
+        return Pair.of(senderAccount, recipientAccount);
     }
 
 

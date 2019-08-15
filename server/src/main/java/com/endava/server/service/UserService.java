@@ -20,9 +20,6 @@ public class UserService {
         return new UserDTO(userRepository.findById(userId).orElseThrow(() -> new  ResourceNotFoundException("User", "userId", userId)));
     }
 
-    public UserDTO testDataFlow(UserDTO userDTO){
-        return userDTO;
-    }
 
     public UserDTO createUser(UserDTO userDTO){
        return new UserDTO(userRepository.save(new User(userDTO)));
@@ -40,6 +37,5 @@ public class UserService {
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
-
 
 }

@@ -20,13 +20,14 @@ public class UserController {
        return userService.getUser(userId);
     }
 
-    @PostMapping("/test")
-    public UserDTO testApi(@RequestBody @Valid UserDTO userDTO){
-        return userDTO;
-    }
-
     @PostMapping(path = "/create")
     public UserDTO addUser(@Valid @RequestBody UserDTO userDTO){
         return userService.createUser(userDTO);
     }
+
+    @PutMapping(path = "/update/{userId}")
+    public UserDTO updateUser(@RequestParam @Valid Long userId, @RequestBody @Valid UserDTO userDTO) {
+       return userService.updateUser(userId, userDTO);
+    }
+
 }

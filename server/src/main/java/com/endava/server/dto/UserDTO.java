@@ -1,6 +1,7 @@
 package com.endava.server.dto;
 
 import com.endava.server.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ public class UserDTO {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     public UserDTO(User user) {
