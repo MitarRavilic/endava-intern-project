@@ -1,6 +1,7 @@
 package com.endava.server.controller;
 
 import com.endava.server.dto.UserAccountDTO;
+import com.endava.server.model.Transfer;
 import com.endava.server.service.UserAccountService;
 import com.endava.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,8 @@ public class UserAccountController {
 
         return userAccountService.createUserAccount(userId, currencyCode);
     }
+
+
+
 
 }

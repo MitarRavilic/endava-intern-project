@@ -41,7 +41,7 @@ public class UserAccount implements Serializable {
     public UserAccount(User user, String currencyCode){
         this.user = user;
         this.currencyCode = currencyCode;
-        this.balance =  BigDecimal.ZERO;
+        this.balance =  BigDecimal.TEN;
     }
 }
 

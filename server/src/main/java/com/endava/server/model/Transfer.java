@@ -14,9 +14,11 @@ public class Transfer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
     @Getter
     private UserAccount sender;
 
+    @ManyToOne
     @Getter
     private UserAccount recipient;
 

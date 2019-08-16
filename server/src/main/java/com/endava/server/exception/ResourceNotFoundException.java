@@ -3,7 +3,7 @@ package com.endava.server.exception;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 
-public class ResourceNotFoundException extends RuntimeException {
+public class ResourceNotFoundException extends Exception {
 
     private String resourceName;
     private String fieldName;
