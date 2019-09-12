@@ -2,18 +2,20 @@ package com.endava.server.model;
 
 import com.endava.server.dto.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
-import javax.validation.Constraint;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class User implements Serializable {
 
@@ -21,13 +23,18 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
     private String username;
 
+    @NotEmpty
     private String email;
 
-    @JsonIgnore
+    @NotEmpty
     private String password;
 
+    @OneToMany(mappedBy = "user")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private Set<UserAccount> accounts;
 
     public User(UserDTO userDTO){
         this.username = userDTO.getUsername();
@@ -35,4 +42,18 @@ public class User implements Serializable {
         this.password = userDTO.getPassword();
     }
 
+    public User(String username, String email, String password){
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.accounts = new HashSet<>();
+        //this.accounts.add(new UserAccount(this, "EUR"));
+    }
+
+    public Optional<UserAccount> getUserAccountWithCurrency(String currencyCode){
+       return this.accounts.stream().filter(account -> account.getCurrencyCode().equals(currencyCode)).findFirst();
+    }
+    public void addUserAccountToUser(String currencyCode) {
+       this.accounts.add(new UserAccount(this, currencyCode));
+    }
 }

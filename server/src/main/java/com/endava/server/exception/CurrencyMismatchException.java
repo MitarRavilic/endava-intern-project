@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.PRECONDITION_FAILED)
-@Getter
 public class CurrencyMismatchException extends RuntimeException{
 
     public CurrencyMismatchException(){

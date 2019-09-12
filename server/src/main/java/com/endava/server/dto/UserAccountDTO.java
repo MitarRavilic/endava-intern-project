@@ -12,14 +12,14 @@ import java.math.BigDecimal;
 @Getter
 public class UserAccountDTO {
 
-    private User user;
+    private UserDTO user;
 
     private String currencyCode;
 
     private BigDecimal balance;
 
     public UserAccountDTO(UserAccount userAccount) {
-        this.user = userAccount.getUser();
+        this.user = new UserDTO(userAccount.getUser());
         this.currencyCode = userAccount.getCurrencyCode();
         this.balance = userAccount.getBalance();
     }

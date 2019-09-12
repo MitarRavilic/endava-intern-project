@@ -1,17 +1,24 @@
 package com.endava.server.util;
 
+import com.endava.server.aspect.ServiceLoggingAspect;
 import com.endava.server.model.UserAccount;
+import lombok.Getter;
 import org.javamoney.moneta.Money;
-import org.springframework.data.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.money.convert.CurrencyConversion;
+import javax.money.convert.ExchangeRateProvider;
 import javax.money.convert.MonetaryConversions;
 import java.math.BigDecimal;
+import java.util.Currency;
 
 
 public class MoneyUtility {
+    @Getter
+    private static ExchangeRateProvider rateProvider = MonetaryConversions.getExchangeRateProvider("IMF");
 
-
+    private Logger logger = LoggerFactory.getLogger(MoneyUtility.class);
     //Convert balance to Money
     public static Money getMoneyFromUserAccount(UserAccount userAccount) {
         return Money.of(userAccount.getBalance(), userAccount.getCurrencyCode());
@@ -30,27 +37,44 @@ public class MoneyUtility {
     }
     // Convert money
     public static Money convertMoney(Money money, String targetCurrencyCode){
-        CurrencyConversion conversion = MonetaryConversions.getConversion(targetCurrencyCode);
+        CurrencyConversion conversion = rateProvider.getCurrencyConversion(targetCurrencyCode);
         return money.with(conversion);
     }
 
-    // return sender-recipient account pair
-    public static Pair<UserAccount, UserAccount> transferMoney(UserAccount sender, UserAccount recipient, String currencyCode, BigDecimal amount){
-        UserAccount senderAccount;
-        UserAccount recipientAccount;
-        Money money = Money.of(amount, currencyCode);
-        if (checkUserAccountCurrencyMatch(sender, recipient)) {
-            senderAccount = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(money));
-            recipientAccount = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(money));
-        } else {
-            senderAccount = setUserAccountBalanceFromMoney(sender, getMoneyFromUserAccount(sender).subtract(money));
-            recipientAccount = setUserAccountBalanceFromMoney(recipient, getMoneyFromUserAccount(recipient).add(convertMoney(money, recipient.getCurrencyCode())));
+        public static void transferMoney(UserAccount sender, UserAccount recipient, BigDecimal amount){
+
         }
-        return Pair.of(senderAccount, recipientAccount);
+
+    public static void depositMoneyToAccount(UserAccount userAccount, BigDecimal amount) {
+        Money deposit = Money.of(amount, userAccount.getCurrencyCode());
+        Money balance = getMoneyFromUserAccount(userAccount).add(deposit);
+        setUserAccountBalanceFromMoney(userAccount, balance);
+    }
+
+    public static void withdrawMoneyFromAccount(UserAccount userAccount, BigDecimal amount) {
+        if(userAccount.getBalance().compareTo(amount) < 0){
+            return; // add InsufficientFundsException
+        }
+        Money balance = getMoneyFromUserAccount(userAccount).subtract(Money.of(amount, userAccount.getCurrencyCode()));
+        setUserAccountBalanceFromMoney(userAccount, balance);
+    }
+    public static boolean isCurrencyCodeValid(String currencyCode) {
+        return Currency.getInstance(currencyCode) != null;
+    }
+
+    public static void sendMoney(UserAccount senderAccount, UserAccount recipientAccount, BigDecimal amount){
     }
 
 
+    public static void sendAndConvertMoney(UserAccount senderAccount, UserAccount recipientAccount, BigDecimal amount){
+        if(senderAccount.getBalance().compareTo(amount) > 0) {
 
-
-
+            Money senderAccountMoney = getMoneyFromUserAccount(senderAccount);
+            Money recipientAccountMoney = getMoneyFromUserAccount(recipientAccount);
+            Money amountMoney = Money.of(amount, senderAccount.getCurrencyCode());
+            Money convertedAmountMoney = convertMoney(amountMoney, recipientAccount.getCurrencyCode());
+            setUserAccountBalanceFromMoney(senderAccount, senderAccountMoney.subtract(amountMoney));
+            setUserAccountBalanceFromMoney(recipientAccount, recipientAccountMoney.add(convertedAmountMoney));
+        }
+    }
 }
