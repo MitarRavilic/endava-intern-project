@@ -47,7 +47,6 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.accounts = new HashSet<>();
-        //this.accounts.add(new UserAccount(this, "EUR"));
     }
 
     public Optional<UserAccount> getUserAccountWithCurrency(String currencyCode){

@@ -13,14 +13,11 @@ public class UserDTO {
 
     private String username;
 
-    private String email;
-
     private String password;
 
     public UserDTO(User user) {
     //    this.id = user.getId();
         this.username = user.getUsername();
-        this.email = user.getEmail();
         this.password = user.getPassword();
     }
 }
