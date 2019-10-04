@@ -19,11 +19,11 @@ public class UserAccountController {
     @Autowired
     UserService userService;
 
-    @PostMapping(path = "/{userId}/{currencyCode}")
-    public UserAccountDTO createUserAccount(@PathVariable @Valid Long userId, @PathVariable @Valid String currencyCode){
-
-        return userAccountService.createUserAccount(userId, currencyCode);
-    }
+//    @PostMapping(path = "/{userId}/{currencyCode}")
+//    public UserAccountDTO createUserAccount(@PathVariable @Valid Long userId, @PathVariable @Valid String currencyCode){
+//
+//        return userAccountService.createUserAccount(userId, currencyCode);
+//    }
 
 
 

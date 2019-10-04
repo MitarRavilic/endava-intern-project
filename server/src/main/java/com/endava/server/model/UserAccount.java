@@ -47,5 +47,12 @@ public class UserAccount implements Serializable {
         this.currencyCode = userAccountDTO.getCurrencyCode();
         this.balance = userAccountDTO.getBalance();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {return false;}
+        if(!(obj instanceof UserAccount)) {return false;}
+        return this.currencyCode == ((UserAccount) obj).currencyCode && this.user == ((UserAccount) obj).user;
+    }
 }
 

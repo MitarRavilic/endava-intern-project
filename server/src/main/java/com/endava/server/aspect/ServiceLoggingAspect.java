@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 public class ServiceLoggingAspect {
     private Logger logger = LoggerFactory.getLogger(ServiceLoggingAspect.class);
 
-    @Before("execution(* com.endava.server.service.*Service.create*(..))")
+    @Before("execution(* com.endava.server.service.*Service.*(..))")
     public void logServiceCreateMethodBefore(JoinPoint point){
         logger.info("calling " + point.getSignature().getName());
     }
 
-    @After("execution(* com.endava.server.service.*Service.create*(..))")
+    @After("execution(* com.endava.server.service.*Service.*(..))")
     public void logServiceCreateMethodAfter(JoinPoint point) {
 
         logger.info(point.getSignature().getName() + " called");

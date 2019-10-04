@@ -10,6 +10,7 @@ import com.endava.server.service.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -35,6 +36,9 @@ public class InitialDataLoader implements ApplicationRunner {
     @Autowired
     TransferService transferService;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
 
 
     String[] currencies = {"EUR", "USD", "CAD", "RUB", "GBP", "JPY"};
@@ -52,8 +56,9 @@ public class InitialDataLoader implements ApplicationRunner {
 
     //Generate User email and password from username
     public User generateUserWithUsername(String username) {
-        String password = username.toLowerCase();
+        String password = passwordEncoder.encode(username.toLowerCase());
         String email = username.toLowerCase() + "@email.com";
+
         return new User(username, email, password);
     }
 
@@ -62,6 +67,7 @@ public class InitialDataLoader implements ApplicationRunner {
     public UserAccount generateUserAccountWithUser(User user){
         return new UserAccount(user, getRandomCurrencyCode());
     }
+
     //GenerateData
     public void generateUserAndAccountData(String username){
        User user = userRepository.save(generateUserWithUsername(username));
@@ -85,7 +91,7 @@ public class InitialDataLoader implements ApplicationRunner {
     public void generateDeposit(Long userId, String currencyCode){
         Random random = new Random();
         BigDecimal amount = BigDecimal.valueOf(random.nextInt(500));
-        transferService.depositMoney(userId, currencyCode, amount);
+        transferService.adminDepositMoney(userId, currencyCode, amount);
     }
 
 

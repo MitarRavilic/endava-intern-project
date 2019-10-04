@@ -11,6 +11,7 @@ import com.endava.server.repository.UserRepository;
 import com.endava.server.util.MoneyUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,39 +29,15 @@ public class UserAccountService {
     UserRepository userRepository;
 
     @Transactional
-    public UserAccountDTO createUserAccount(Long userId, String currencyCode) {
+    public void createUserAccount(String currencyCode) {
         if (MoneyUtility.isCurrencyCodeValid(currencyCode)) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
-            UserAccount account = new UserAccount(user, currencyCode);
-            if (!user.getAccounts().add(account)) //if similar account already exists
-            {
-                account = userAccountRepository.findByUser_IdAndCurrencyCode(userId, currencyCode).get();
-                return new UserAccountDTO(account);
-            }
-            userAccountRepository.save(account);
-            return new UserAccountDTO(account);
+           String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+            user.addAccount(currencyCode);
         } else throw new CurrencyMismatchException();
     }
 
-    // create new account or return if it exists
-//    public UserAccountDTO createUserAccount(Long userId, String currencyCode) throws ResourceNotFoundException {
-//        User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User", "userId", userId));
-//        UserAccount account = userAccountRepository.findByUser_IdAndCurrencyCode(userId, currencyCode).or(() -> {
-//            return  Optional.of(userAccountRepository.save(new UserAccount(user, currencyCode)));
-//        }).get();
-//        return new UserAccountDTO(account);
-//    }
 
-
-//    @Transactional
-//    public Transfer transferMoneyBetweenAccounts(Long senderUserId, Long recipientUserId, BigDecimal amount, String currencyCodeSenderAccount, String currencyCodeRecipientAccount) throws ResourceNotFoundException {
-//        UserAccount senderAccount = userAccountRepository.findByUser_IdAndCurrencyCode(senderUserId, currencyCodeSenderAccount).orElseThrow(()-> new ResourceNotFoundException("User", "senderUserId", senderUserId));
-//        UserAccount recipientAccount = userAccountRepository.findByUser_IdAndCurrencyCode(recipientUserId, currencyCodeSenderAccount).orElseThrow(() -> new ResourceNotFoundException("User", "recipientUserId", recipientUserId));
-//        Pair<UserAccount, UserAccount> accountPair = MoneyUtility.transferMoney(senderAccount, recipientAccount, currencyCodeSenderAccount, amount);
-//        userAccountRepository.saveAll(Arrays.asList(accountPair.getFirst(), accountPair.getSecond()));
-//
-//        return new Transfer(accountPair.getFirst(), accountPair.getSecond());
-//    }
 
 
 

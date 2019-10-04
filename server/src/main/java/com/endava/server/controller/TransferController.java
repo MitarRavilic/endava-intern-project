@@ -1,11 +1,11 @@
 package com.endava.server.controller;
 
 import com.endava.server.dto.TransferDTO;
-import com.endava.server.model.Transfer;
 import com.endava.server.service.TransferService;
 import com.endava.server.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -22,22 +22,23 @@ public class TransferController {
     TransferService transferService;
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllTransfers(){
         return ResponseEntity.ok(transferService.getAllTransfers());
     }
 
     // sending same currency between 2 users
-    @PostMapping(path = "{senderId}/{recipientId}/{currencyCode}/{amount}")
-    public ResponseEntity<?> sendMoney(@PathVariable Long senderId, @PathVariable Long recipientId,@PathVariable String currencyCode, @PathVariable BigDecimal amount){
+    @PostMapping(path = "/{recipientId}/{currencyCode}/{amount}")
+    public ResponseEntity<?> sendMoney(@PathVariable Long recipientId, @PathVariable String currencyCode, @PathVariable BigDecimal amount){
 
-        TransferDTO dto = transferService.transferMoneyBetweenUsers(senderId, recipientId, currencyCode, amount);
+        TransferDTO dto = transferService.transferMoneyBetweenUsers(recipientId, currencyCode, amount);
         return ResponseEntity.ok(dto);
     }
 
 
-    @PostMapping(path = "/deposits/{userId}/{currencyCode}/{amount}")
-    public ResponseEntity<?> depositMoney(@PathVariable Long userId, @PathVariable String currencyCode, @PathVariable BigDecimal amount){
-        TransferDTO dto = transferService.depositMoney(userId, currencyCode, amount);
+    @PostMapping(path = "/deposits/{currencyCode}/{amount}")
+    public ResponseEntity<?> depositMoney( @PathVariable String currencyCode, @PathVariable BigDecimal amount){
+        TransferDTO dto = transferService.depositMoney(currencyCode, amount);
         return ResponseEntity.ok(dto);
     }
 
@@ -48,17 +49,14 @@ public class TransferController {
         return ResponseEntity.ok(dto);
     }
 
-
-
     @PostMapping(path = "/conversion-transfers")
-    public ResponseEntity sendAndConvertMoney(@RequestBody HashMap<String, String> transferData){
-        Long senderId = Long.valueOf(transferData.get("senderId"));
-        Long recipientId = Long.valueOf(transferData.get("recipientId"));
+    public ResponseEntity<?> sendAndConvertMoney(@RequestBody HashMap<String, String> transferData){
+        String recipientUsername = transferData.get("recipientUsername");
         BigDecimal amount = new BigDecimal(transferData.get("amount"));
         String baseCurrency = transferData.get("baseCurrency");
         String targetCurrency = transferData.get("targetCurrency");
 
-        TransferDTO dto = transferService.sendAndConvertMoneyBetweenUsers(senderId, recipientId, amount, baseCurrency, targetCurrency);
+        TransferDTO dto = transferService.sendAndConvertMoneyBetweenUsers(recipientUsername, amount, baseCurrency, targetCurrency);
 
         return ResponseEntity.ok(dto);
     }
