@@ -1,4 +1,4 @@
-package com.endava.server.dto;
+package com.endava.server.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

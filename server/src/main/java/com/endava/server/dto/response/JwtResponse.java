@@ -1,4 +1,4 @@
-package com.endava.server.dto;
+package com.endava.server.dto.response;
 
 import lombok.Getter;
 

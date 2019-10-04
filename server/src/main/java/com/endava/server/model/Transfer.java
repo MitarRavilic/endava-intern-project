@@ -52,11 +52,4 @@ public class Transfer implements Serializable {
         this.transferType = transferType;
     }
 
-//    public Transfer(TransferDTO transferDTO){
-//        this.sender = new UserAccount(transferDTO.getSender());
-//        this.senderCurrencyCode = transferDTO.getSenderCurrencyCode();
-//        this.recipient = new UserAccount(transferDTO.getRecipient());
-//        this.recipientCurrencyCode = transferDTO.getRecipientCurrencyCode();
-//        this.amount = transferDTO.getAmount();
-//    }
 }

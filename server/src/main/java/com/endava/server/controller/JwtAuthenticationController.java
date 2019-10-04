@@ -1,9 +1,8 @@
 package com.endava.server.controller;
 
-import com.endava.server.dto.JwtResponse;
-import com.endava.server.dto.UserDTO;
-import com.endava.server.dto.UserDTOLogin;
-import com.endava.server.dto.UserDTORegister;
+import com.endava.server.dto.response.JwtResponse;
+import com.endava.server.dto.request.UserDTOLogin;
+import com.endava.server.dto.request.UserDTORegister;
 import com.endava.server.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

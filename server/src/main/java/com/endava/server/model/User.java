@@ -1,12 +1,10 @@
 package com.endava.server.model;
 
-import com.endava.server.dto.UserDTO;
-import com.endava.server.dto.UserDTORegister;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.endava.server.dto.UserDTOfull;
+import com.endava.server.dto.request.UserDTORegister;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -46,9 +44,9 @@ public class User implements Serializable {
     private Set<UserAccount> accounts;
 
 
-    public User(UserDTO userDTO){
-        this.username = userDTO.getUsername();
-        this.password = userDTO.getPassword();
+    public User(UserDTOfull userDTOfull){
+        this.username = userDTOfull.getUsername();
+        this.password = userDTOfull.getPassword();
     }
 
     public User(UserDTORegister userDTO) {

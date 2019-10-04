@@ -69,22 +69,22 @@ public class TransferService {
         } else throw new EntityNotFoundException("Sender or Recipient user doesn't exist");
     }
 
-    @Transactional
-    public TransferDTO adminDepositMoney(Long userId, String currencyCode, BigDecimal amount){
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User","userId", userId));
-        Optional<UserAccount> accountWithCurrency = user.getUserAccountWithCurrency(currencyCode);
-        UserAccount wantedAccount;
-        if(accountWithCurrency.isEmpty()) {
-            wantedAccount = new UserAccount(user, currencyCode);
-            user.getAccounts().add(wantedAccount);
-        } else {
-            wantedAccount = accountWithCurrency.get();
-        }
-        MoneyUtility.depositMoneyToAccount(wantedAccount, amount);
-        Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.DEPOSIT);
-        transferRepository.save(transfer);
-        return new TransferDTO(transfer);
-    }
+//    @Transactional
+//    public TransferDTO adminDepositMoney(Long userId, String currencyCode, BigDecimal amount){
+//        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User","userId", userId));
+//        Optional<UserAccount> accountWithCurrency = user.getUserAccountWithCurrency(currencyCode);
+//        UserAccount wantedAccount;
+//        if(accountWithCurrency.isEmpty()) {
+//            wantedAccount = new UserAccount(user, currencyCode);
+//            user.getAccounts().add(wantedAccount);
+//        } else {
+//            wantedAccount = accountWithCurrency.get();
+//        }
+//        MoneyUtility.depositMoneyToAccount(wantedAccount, amount);
+//        Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.DEPOSIT);
+//        transferRepository.save(transfer);
+//        return new TransferDTO(transfer);
+//    }
 
     @Transactional
     public TransferDTO depositMoney(String currencyCode, BigDecimal amount){

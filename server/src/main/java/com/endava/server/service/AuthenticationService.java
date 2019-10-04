@@ -1,15 +1,11 @@
 package com.endava.server.service;
 
-import com.endava.server.dto.JwtResponse;
-import com.endava.server.dto.UserDTO;
-import com.endava.server.dto.UserDTOLogin;
-import com.endava.server.dto.UserDTORegister;
-import com.endava.server.model.Role;
-import com.endava.server.model.User;
-import com.endava.server.repository.UserRepository;
+import com.endava.server.dto.response.JwtResponse;
+import com.endava.server.dto.UserDTOfull;
+import com.endava.server.dto.request.UserDTOLogin;
+import com.endava.server.dto.request.UserDTORegister;
 import com.endava.server.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -19,7 +15,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,7 +31,7 @@ public class AuthenticationService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDTO user = userService.getUserByUsername(username);
+        UserDTOfull user = userService.getUserByUsername(username);
         ArrayList<GrantedAuthority> role = new ArrayList<>();
         role.add(new SimpleGrantedAuthority(user.getRole().name()));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), role);

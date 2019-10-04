@@ -1,14 +1,12 @@
 package com.endava.server.controller;
 
 import com.endava.server.dto.UserAccountDTOUserView;
-import com.endava.server.dto.UserDTO;
-import com.endava.server.dto.UserDTORegister;
+import com.endava.server.dto.UserDTOfull;
+import com.endava.server.dto.request.UserDTORegister;
 import com.endava.server.model.User;
 import com.endava.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,8 +28,8 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable Long userId) {
-       UserDTO userDTO = userService.getUser(userId);
-       return ResponseEntity.ok(userDTO);
+       UserDTOfull userDTOfull = userService.getUser(userId);
+       return ResponseEntity.ok(userDTOfull);
     }
 
     @PostMapping("/add")
@@ -41,8 +39,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDTO userDTO) {
-       userService.updateUser(userId, userDTO);
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDTOfull userDTOfull) {
+       userService.updateUser(userId, userDTOfull);
        return ResponseEntity.ok("User Updated");
     }
 

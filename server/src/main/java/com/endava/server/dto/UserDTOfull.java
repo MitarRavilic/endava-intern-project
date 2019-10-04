@@ -8,7 +8,7 @@ import org.springframework.lang.Nullable;
 
 @Getter
 @NoArgsConstructor
-public class UserDTO {
+public class UserDTOfull {
 
     @Nullable
     private Long id;
@@ -23,10 +23,9 @@ public class UserDTO {
     private Role role;
 
 
-    public UserDTO(User user) {
+    public UserDTOfull(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
-        this.password = user.getPassword();
         this.email = user.getEmail();
         this.role = user.getRole();
     }

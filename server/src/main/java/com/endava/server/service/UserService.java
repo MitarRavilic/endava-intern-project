@@ -1,8 +1,8 @@
 package com.endava.server.service;
 
 import com.endava.server.dto.UserAccountDTOUserView;
-import com.endava.server.dto.UserDTO;
-import com.endava.server.dto.UserDTORegister;
+import com.endava.server.dto.UserDTOfull;
+import com.endava.server.dto.request.UserDTORegister;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Role;
 import com.endava.server.model.User;
@@ -11,14 +11,10 @@ import com.endava.server.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,13 +32,13 @@ public class UserService {
        return userRepository.findAll();
     }
 
-    public UserDTO getUser(Long userId){
-        return new UserDTO(userRepository.findById(userId).orElseThrow(() -> new  ResourceNotFoundException("User", "userId", userId)));
+    public UserDTOfull getUser(Long userId){
+        return new UserDTOfull(userRepository.findById(userId).orElseThrow(() -> new  ResourceNotFoundException("User", "userId", userId)));
     }
 
-    public UserDTO getUserByUsername(String username) {
+    public UserDTOfull getUserByUsername(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        return new UserDTO(user);
+        return new UserDTOfull(user);
     }
 
     @Transactional
@@ -57,11 +53,10 @@ public class UserService {
 
 
     @Transactional
-    public void updateUser(Long userId, UserDTO userDTO) {
+    public void updateUser(Long userId, UserDTOfull userDTOfull) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        user.setUsername(userDTOfull.getUsername());
+        user.setEmail(userDTOfull.getEmail());
     }
 
     @Transactional
