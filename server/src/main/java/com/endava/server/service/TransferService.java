@@ -32,19 +32,23 @@ public class TransferService {
     UserAccountRepository userAccountRepository;
 
 
+    // == Get Methods ==
 
     public List<Transfer> getAllTransfers(){
        return transferRepository.findAll();
     }
 
+//    public List<TransferDTO> getAllTransfersForAccount(String currencyCode) {
+//
+//    }
 
 
     @Transactional
-    public TransferDTO transferMoneyBetweenUsers(Long recipientId, String currencyCode, BigDecimal amount) {
+    public TransferDTO transferMoneyBetweenUsers(String recipientUsername, String currencyCode, BigDecimal amount) {
 
         String senderUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> sender = userRepository.findByUsername(senderUsername);
-        Optional<User> recipient = userRepository.findById(recipientId);
+        Optional<User> recipient = userRepository.findByUsername(recipientUsername);
 
         if (sender.isPresent() && recipient.isPresent()) {
 
@@ -69,22 +73,22 @@ public class TransferService {
         } else throw new EntityNotFoundException("Sender or Recipient user doesn't exist");
     }
 
-//    @Transactional
-//    public TransferDTO adminDepositMoney(Long userId, String currencyCode, BigDecimal amount){
-//        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User","userId", userId));
-//        Optional<UserAccount> accountWithCurrency = user.getUserAccountWithCurrency(currencyCode);
-//        UserAccount wantedAccount;
-//        if(accountWithCurrency.isEmpty()) {
-//            wantedAccount = new UserAccount(user, currencyCode);
-//            user.getAccounts().add(wantedAccount);
-//        } else {
-//            wantedAccount = accountWithCurrency.get();
-//        }
-//        MoneyUtility.depositMoneyToAccount(wantedAccount, amount);
-//        Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.DEPOSIT);
-//        transferRepository.save(transfer);
-//        return new TransferDTO(transfer);
-//    }
+    @Transactional
+    public TransferDTO adminDepositMoney(Long userId, String currencyCode, BigDecimal amount){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User","userId", userId));
+        Optional<UserAccount> accountWithCurrency = user.getUserAccountWithCurrency(currencyCode);
+        UserAccount wantedAccount;
+        if(accountWithCurrency.isEmpty()) {
+            wantedAccount = new UserAccount(user, currencyCode);
+            user.getAccounts().add(wantedAccount);
+        } else {
+            wantedAccount = accountWithCurrency.get();
+        }
+        MoneyUtility.depositMoneyToAccount(wantedAccount, amount);
+        Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.DEPOSIT);
+        transferRepository.save(transfer);
+        return new TransferDTO(transfer);
+    }
 
     @Transactional
     public TransferDTO depositMoney(String currencyCode, BigDecimal amount){
@@ -115,7 +119,7 @@ public class TransferService {
 
 
     @Transactional
-    public TransferDTO convertMoney(Long userId, String baseCurrencyCode, String targetCurrencyCode, BigDecimal amount) {
+    public TransferDTO convertMoney(String baseCurrencyCode, String targetCurrencyCode, BigDecimal amount) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         Optional<UserAccount> accountWithBaseCurrency = user.getUserAccountWithCurrency(baseCurrencyCode);

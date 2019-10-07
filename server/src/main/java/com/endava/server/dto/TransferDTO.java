@@ -14,11 +14,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TransferDTO {
 
-   private Long senderAccountId;
+   private String senderUsername;
 
    private String senderCurrencyCode;
 
-   private Long recipientAccountId;
+   private String recipientUsername;
 
    private String recipientCurrencyCode;
 
@@ -27,9 +27,9 @@ public class TransferDTO {
    private TransferType transferType;
 
    public TransferDTO(Transfer transfer){
-       this.senderAccountId = transfer.getSenderAccount().getId();
+       this.senderUsername = transfer.getSenderAccount().getUser().getUsername();
        this.senderCurrencyCode = transfer.getSenderCurrencyCode();
-       this.recipientAccountId = transfer.getSenderAccount().getId();
+       this.recipientUsername = transfer.getSenderAccount().getUser().getUsername();
        this.recipientCurrencyCode = transfer.getRecipientCurrencyCode();
        this.amount = transfer.getAmount();
        this.transferType = transfer.getTransferType();

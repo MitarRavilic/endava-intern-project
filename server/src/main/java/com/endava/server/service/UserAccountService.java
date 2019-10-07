@@ -10,14 +10,10 @@ import com.endava.server.repository.UserAccountRepository;
 import com.endava.server.repository.UserRepository;
 import com.endava.server.util.MoneyUtility;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Optional;
 
 
 @Service

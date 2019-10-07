@@ -42,11 +42,11 @@ public class Transfer implements Serializable {
     private TransferType transferType;
 
 
-    public Transfer(UserAccount sender, UserAccount recipient, BigDecimal amount, TransferType transferType){
-        this.senderAccount = sender;
-        this.senderCurrencyCode = sender.getCurrencyCode();
-        this.recipientAccount = recipient;
-        this.recipientCurrencyCode = recipient.getCurrencyCode();
+    public Transfer(UserAccount senderAccount, UserAccount recipientAccount, BigDecimal amount, TransferType transferType){
+        this.senderAccount = senderAccount;
+        this.senderCurrencyCode = senderAccount.getCurrencyCode();
+        this.recipientAccount = recipientAccount;
+        this.recipientCurrencyCode = recipientAccount.getCurrencyCode();
         this.createdAt = new Date();
         this.amount = amount;
         this.transferType = transferType;

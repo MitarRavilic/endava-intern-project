@@ -1,6 +1,8 @@
 package com.endava.server.controller;
 
 import com.endava.server.dto.TransferDTO;
+import com.endava.server.dto.request.ConvertMoneyRequest;
+import com.endava.server.dto.request.SendMoneyRequest;
 import com.endava.server.service.TransferService;
 import com.endava.server.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +31,9 @@ public class TransferController {
 
     // sending same currency between 2 users
     @PostMapping(path = "/{recipientId}/{currencyCode}/{amount}")
-    public ResponseEntity<?> sendMoney(@PathVariable Long recipientId, @PathVariable String currencyCode, @PathVariable BigDecimal amount){
+    public ResponseEntity<?> sendMoney(@RequestBody SendMoneyRequest request){
 
-        TransferDTO dto = transferService.transferMoneyBetweenUsers(recipientId, currencyCode, amount);
+        TransferDTO dto = transferService.transferMoneyBetweenUsers(request.getRecipientUsername(), request.getCurrencyCode(), request.getAmount());
         return ResponseEntity.ok(dto);
     }
 
@@ -44,8 +46,8 @@ public class TransferController {
 
     //convert money single user
     @PostMapping(path = "/conversions")
-    public ResponseEntity<?> convert(@RequestBody TransferDTO transferDTO){
-        TransferDTO dto = transferService.convertMoney(transferDTO.getSenderAccountId(), transferDTO.getSenderCurrencyCode(), transferDTO.getRecipientCurrencyCode(), transferDTO.getAmount());
+    public ResponseEntity<?> convert(@RequestBody ConvertMoneyRequest request){
+        TransferDTO dto = transferService.convertMoney( request.getBaseCurrencyCode(), request.getTargetCurrencyCode(), request.getAmount());
         return ResponseEntity.ok(dto);
     }
 

@@ -42,11 +42,6 @@ public class UserAccount implements Serializable {
         this.balance =  BigDecimal.ZERO;
     }
 
-    public UserAccount(UserAccountDTO userAccountDTO){
-        this.user = new User(userAccountDTO.getUser());
-        this.currencyCode = userAccountDTO.getCurrencyCode();
-        this.balance = userAccountDTO.getBalance();
-    }
 
     @Override
     public boolean equals(Object obj) {
