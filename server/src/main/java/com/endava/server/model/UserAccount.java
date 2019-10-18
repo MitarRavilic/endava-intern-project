@@ -31,15 +31,23 @@ public class UserAccount implements Serializable {
     @Getter
     private String currencyCode; // has no setter, cannot be changed after init
 
-    @Setter
     @Getter
+    @Setter
     private  @PositiveOrZero BigDecimal balance;
 
+    @Getter
+    @Setter
+    private @PositiveOrZero BigDecimal reserved;
+
+//    @Setter
+//    @Getter
+//    private BigDecimal reserved;
 
     public UserAccount(User user, String currencyCode){
         this.user = user;
         this.currencyCode = currencyCode;
         this.balance =  BigDecimal.ZERO;
+        this.reserved = BigDecimal.ZERO;
     }
 
 
@@ -48,6 +56,21 @@ public class UserAccount implements Serializable {
         if(obj == null) {return false;}
         if(!(obj instanceof UserAccount)) {return false;}
         return this.currencyCode == ((UserAccount) obj).currencyCode && this.user == ((UserAccount) obj).user;
+    }
+
+    public boolean reserve(BigDecimal amount){
+        if (this.balance.compareTo(amount) > 0){
+            this.balance.subtract(amount);
+            this.reserved.add(amount);
+            return true;
+        } return false;
+    }
+
+    public boolean unReserve(BigDecimal amount){
+        if (this.reserved.compareTo(amount) > 0) {
+            this.reserved.subtract(amount);
+            this.balance.add(amount);
+        } return false;
     }
 }
 

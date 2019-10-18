@@ -1,5 +1,6 @@
 package com.endava.server.dto.response;
 
+import com.endava.server.model.Transfer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,15 @@ public class TransferResponse {
     String senderCurrencyCode;
     String recipientCurrencyCode;
     BigDecimal amount;
-    Double rate;
     String type;
+
+
+    public TransferResponse(Transfer transfer) {
+        this.senderUsername = transfer.getSenderAccount().getUser().getUsername();
+        this.recipientUsername = transfer.getRecipientAccount().getUser().getUsername();
+        this.senderCurrencyCode = transfer.getSenderCurrencyCode();
+        this.recipientCurrencyCode = transfer.getRecipientCurrencyCode();
+        this.amount = transfer.getAmount();
+        this.type = transfer.getTransferType().toString();
+    }
 }

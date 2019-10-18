@@ -1,6 +1,7 @@
 package com.endava.server.service;
 
 import com.endava.server.dto.TransferDTO;
+import com.endava.server.dto.response.TransferResponse;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Transfer;
 import com.endava.server.model.TransferType;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransferService {
@@ -38,9 +40,14 @@ public class TransferService {
        return transferRepository.findAll();
     }
 
-//    public List<TransferDTO> getAllTransfersForAccount(String currencyCode) {
-//
-//    }
+    public List<TransferDTO> getAllTransfersForAccount(String currencyCode) {
+       String username = SecurityContextHolder.getContext().getAuthentication().getName();
+       User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+       UserAccount account = user.getUserAccountWithCurrency(currencyCode).orElseThrow(() -> new ResourceNotFoundException("UserAccount", "currencyCode", currencyCode));
+       List<Transfer> transfers = transferRepository.findAllBySenderAccountOrRecipientAccount(account, account);
+       List<TransferDTO> dto = transfers.stream().map(transfer -> new TransferDTO(transfer)).collect(Collectors.toList());
+       return dto;
+    }
 
 
     @Transactional
@@ -108,8 +115,9 @@ public class TransferService {
         return new TransferDTO(transfer);
     }
     @Transactional
-    public TransferDTO withdrawMoney(Long userId, String currencyCode, BigDecimal amount){
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User","userId", userId));
+    public TransferDTO withdrawMoney( String currencyCode, BigDecimal amount){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User","username", username));
         UserAccount wantedAccount = user.getUserAccountWithCurrency(currencyCode).orElseThrow(() -> new ResourceNotFoundException("UserAccount","currencyCode", currencyCode));
         MoneyUtility.withdrawMoneyFromAccount(wantedAccount, amount);
         Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.WITHDRAWAL);
@@ -139,30 +147,10 @@ public class TransferService {
             }
         }
         MoneyUtility.sendAndConvertMoney(baseCurrencyAccount, targetCurrencyAccount, amount);
+        userAccountRepository.saveAll(Arrays.asList(baseCurrencyAccount, targetCurrencyAccount));
        Transfer transfer = new Transfer(baseCurrencyAccount, targetCurrencyAccount, amount, TransferType.CONVERSION);
        return new TransferDTO(transfer);
     }
-
-    @Transactional
-    public TransferDTO sendAndConvertMoneyBetweenUsers(String recipientUsername, BigDecimal amount, String baseCurrencyCode, String targetCurrencyCode){
-        String senderUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        User sender = userRepository.findByUsername(senderUsername).orElseThrow(() -> new ResourceNotFoundException("User", "senderUsername", senderUsername));
-        User recipient = userRepository.findByUsername(recipientUsername).orElseThrow(() -> new ResourceNotFoundException("User", "recipientUsername", recipientUsername));
-        Optional<UserAccount> accountWithBaseCurrency = sender.getUserAccountWithCurrency(baseCurrencyCode);
-        Optional<UserAccount> accountWithTargetCurrency = recipient.getUserAccountWithCurrency(targetCurrencyCode);
-        UserAccount baseCurrencyAccount;
-        UserAccount targetCurrencyAccount;
-        if(accountWithBaseCurrency.isEmpty() || accountWithTargetCurrency.isEmpty()) {
-            throw new ResourceNotFoundException("UserAccount", "currencyCode", baseCurrencyCode + " or " + targetCurrencyCode);
-        } else {
-            baseCurrencyAccount = accountWithBaseCurrency.get();
-            targetCurrencyAccount = accountWithTargetCurrency.get();
-        }
-        MoneyUtility.sendAndConvertMoney(baseCurrencyAccount, targetCurrencyAccount, amount);
-        Transfer transfer = new Transfer(baseCurrencyAccount, targetCurrencyAccount, amount, TransferType.LISTING);
-        return new TransferDTO(transfer);
-    }
-
 
 
 }

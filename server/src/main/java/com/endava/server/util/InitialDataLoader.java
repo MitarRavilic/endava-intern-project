@@ -1,8 +1,10 @@
 package com.endava.server.util;
 
+import com.endava.server.model.Listing;
 import com.endava.server.model.Transfer;
 import com.endava.server.model.User;
 import com.endava.server.model.UserAccount;
+import com.endava.server.repository.ListingRepository;
 import com.endava.server.repository.TransferRepository;
 import com.endava.server.repository.UserAccountRepository;
 import com.endava.server.repository.UserRepository;
@@ -20,6 +22,7 @@ import java.io.FileReader;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component
 public class InitialDataLoader implements ApplicationRunner {
@@ -35,6 +38,9 @@ public class InitialDataLoader implements ApplicationRunner {
 
     @Autowired
     TransferService transferService;
+
+    @Autowired
+    ListingRepository listingRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -94,6 +100,17 @@ public class InitialDataLoader implements ApplicationRunner {
         transferService.adminDepositMoney(userId, currencyCode, amount);
     }
 
+    public Listing generateListing(Long userId){
+        UserAccount acc = userAccountRepository.findAllByUser_Id(userId).get(0);
+        Random random = new Random();
+        BigDecimal amount = BigDecimal.valueOf(random.nextInt(30));
+        BigDecimal rate = BigDecimal.valueOf(Math.abs(random.nextDouble() + 2));
+        String targetCurrency = getRandomCurrencyCode();
+        while(acc.getCurrencyCode().equals(targetCurrency)){
+            targetCurrency = getRandomCurrencyCode();
+        }
+        return listingRepository.save(new Listing(acc.getUser(), acc.getCurrencyCode(), amount, targetCurrency, rate));
+    }
 
     @Override
     public void run(ApplicationArguments args) throws FileNotFoundException {
@@ -102,17 +119,21 @@ public class InitialDataLoader implements ApplicationRunner {
         scanner.useDelimiter(",");
         Random random = new Random();
 
-            while (scanner.hasNextLine()) {
-               String username = scanner.next();
-               generateUserAndAccountData(username);
-            }
+        while (scanner.hasNextLine()) {
+            String username = scanner.next();
 
-        for (int i = 1; i <80 ; i++) {
+            generateUserAndAccountData(username);
+
+        }
+
+        for (int i = 1; i < 80; i++) {
             Long randomId = (long) random.nextInt(10) + 1;
 
             generateDeposit(randomId, getRandomCurrencyCode());
         }
-
-
+        for (int i = 1; i < 20; i++) {
+            Long randomId = (long) random.nextInt(10) + 1;
+            generateListing(randomId);
+        }
     }
 }
