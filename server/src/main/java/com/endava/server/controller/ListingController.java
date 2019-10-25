@@ -1,6 +1,7 @@
 package com.endava.server.controller;
 
 import com.endava.server.dto.request.ListingDTOCreate;
+import com.endava.server.dto.request.ListingResolveRequest;
 import com.endava.server.dto.response.ListingDTOView;
 import com.endava.server.service.ListingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -20,24 +20,22 @@ public class ListingController {
 
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
-      List<ListingDTOView> dto = listingService.getAll();
+      List<ListingDTOView> dto = listingService.getAllListings();
       return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> createListing(@RequestBody @Valid ListingDTOCreate listing) {
-        if (listing.getBaseCurrencyCode() != listing.getTargetCurrencyCode()) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createListing(@RequestBody ListingDTOCreate listing) {
+        if (!listing.getBaseCurrencyCode().equals(listing.getTargetCurrencyCode())) {
             ListingDTOView dto = listingService.createListing(listing);
             return ResponseEntity.ok(dto);
-        } else { return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();}
+        } else { return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();}
     }
 
-    @PostMapping("/resolve")
-    public ResponseEntity<?> resolveListing(@RequestBody Long listingId){
-        listingService.resolveListing(listingId);
+    @PutMapping("/resolve")
+    public ResponseEntity<?> resolveListing(@RequestBody ListingResolveRequest request){
+        listingService.resolveListing(request.getListingId());
         return ResponseEntity.ok().build();
     }
-
-
 
 }

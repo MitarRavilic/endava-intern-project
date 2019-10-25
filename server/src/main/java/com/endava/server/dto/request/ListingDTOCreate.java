@@ -1,12 +1,10 @@
 package com.endava.server.dto.request;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Getter
-@NoArgsConstructor
+@Data
 public class ListingDTOCreate {
 
     private String baseCurrencyCode;

@@ -56,6 +56,7 @@ public class TransferController {
         return ResponseEntity.ok(dto);
     }
 
+    @PostMapping(path = "/withdrawals")
     public ResponseEntity<?> withdrawMoney(@RequestBody WithdrawRequest request){
         TransferDTO dto = transferService.withdrawMoney(request.getCurrencyCode(), request.getAmount());
         return ResponseEntity.ok(dto);

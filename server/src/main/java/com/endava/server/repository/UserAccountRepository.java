@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
     Optional<UserAccount> findByUser_IdAndCurrencyCode(Long userId, String currencyCode);
-    ArrayList<UserAccount> findAllByUser_Id(Long userId);
+    ArrayList<UserAccount> findAllByUser_IdOrderByIdAsc(Long userId);
     ArrayList<UserAccount> findAllByCurrencyCode(String currencyCode);
 }

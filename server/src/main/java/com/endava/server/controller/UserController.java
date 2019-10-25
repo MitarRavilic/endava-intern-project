@@ -2,6 +2,7 @@ package com.endava.server.controller;
 
 import com.endava.server.dto.UserAccountDTOUserView;
 import com.endava.server.dto.UserDTOfull;
+import com.endava.server.dto.request.CreateUserAccountRequest;
 import com.endava.server.dto.request.UserDTORegister;
 import com.endava.server.model.User;
 import com.endava.server.service.UserService;
@@ -55,6 +56,9 @@ public class UserController {
         List<UserAccountDTOUserView> dto = userService.getAllAcountsFromCurrentUser();
         return ResponseEntity.ok(dto);
     }
+
+
+
 
 //    @PreAuthorize("hasAuthority('ADMIN')")
 //    @GetMapping("/testrole")

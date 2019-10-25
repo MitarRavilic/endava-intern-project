@@ -1,6 +1,5 @@
 package com.endava.server.util;
 
-import com.endava.server.exception.CurrencyMismatchException;
 import com.endava.server.exception.InvalidCurrencyCodeException;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Transfer;
@@ -8,22 +7,18 @@ import com.endava.server.model.TransferType;
 import com.endava.server.model.User;
 import com.endava.server.model.UserAccount;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.javamoney.moneta.Money;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.money.convert.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-
+import java.util.*;
 
 public class MoneyUtility {
     @Getter
     private static ExchangeRateProvider rateProvider = MonetaryConversions.getExchangeRateProvider("IMF");
-
-    private Logger logger = LoggerFactory.getLogger(MoneyUtility.class);
 
     //Convert balance to Money
     public static Money getMoneyFromUserAccount(UserAccount userAccount) {
@@ -47,7 +42,9 @@ public class MoneyUtility {
     public static Money convertMoney(Money money, String targetCurrencyCode) {
         CurrencyConversion conversion = rateProvider.getCurrencyConversion(targetCurrencyCode);
         return money.with(conversion);
+
     }
+
 
     public static Money convertMoneyCustomRate(Money money, String targetCurrencyCode, BigDecimal rate) {
         ExchangeRate exchangeRate = new CustomExchangeRate(money.getCurrency().getCurrencyCode(), targetCurrencyCode, rate);
@@ -99,22 +96,21 @@ public class MoneyUtility {
     }
 
 
-    public static void convertMoneyListing(UserAccount senderAccount, UserAccount recipientAccount, BigDecimal amount, BigDecimal rate) {
-        if (senderAccount.getBalance().compareTo(amount) > 0) {
+//    public static void convertMoneyListing(UserAccount senderAccount, UserAccount recipientAccount, BigDecimal amount, BigDecimal rate) {
+//        if (senderAccount.getBalance().compareTo(amount) > 0) {
+//
+//            Money senderAccountMoney = getMoneyFromUserAccount(senderAccount);
+//            Money recipientAccountMoney = getMoneyFromUserAccount(recipientAccount);
+//            Money amountMoney = Money.of(amount, senderAccount.getCurrencyCode());
+//
+//
+//            Money convertedAmountMoney = convertMoneyCustomRate(amountMoney, recipientAccount.getCurrencyCode(), rate);
+//            setUserAccountBalanceFromMoney(senderAccount, senderAccountMoney.subtract(amountMoney));
+//            setUserAccountBalanceFromMoney(recipientAccount, recipientAccountMoney.add(convertedAmountMoney));
+//        }
+//    }
 
-            Money senderAccountMoney = getMoneyFromUserAccount(senderAccount);
-            Money recipientAccountMoney = getMoneyFromUserAccount(recipientAccount);
-            Money amountMoney = Money.of(amount, senderAccount.getCurrencyCode());
-
-
-            Money convertedAmountMoney = convertMoneyCustomRate(amountMoney, recipientAccount.getCurrencyCode(), rate);
-            setUserAccountBalanceFromMoney(senderAccount, senderAccountMoney.subtract(amountMoney));
-            setUserAccountBalanceFromMoney(recipientAccount, recipientAccountMoney.add(convertedAmountMoney));
-        }
-    }
-
-
-    public static ArrayList<Transfer> resolveListing(User user1, User user2, String currencyCode1, String currencyCode2, BigDecimal amount, BigDecimal rate) {
+    public static ListingResolveHelper resolveListing(User user1, User user2, String currencyCode1, String currencyCode2, BigDecimal amount, BigDecimal rate) {
 
         if (isCurrencyCodeValid(currencyCode1) && isCurrencyCodeValid(currencyCode2)) {
             UserAccount user1SendingAccount = user1.getUserAccountWithCurrency(currencyCode1).orElseThrow(() -> new ResourceNotFoundException("UserAccount", "currencyCode", currencyCode1));
@@ -127,11 +123,11 @@ public class MoneyUtility {
             Money convertedAmountMoney = convertMoneyCustomRate(amountMoney, currencyCode2, rate);
 
             // subtracting from listing creator
-            user1SendingAccount.setReserved(user1SendingAccount.getReserved().subtract(amount));
+            user1SendingAccount.resolveReserved(amount);
 
             // subtracting from listing resolver
             setUserAccountBalanceFromMoney(user2SendingAccount,
-                    getMoneyFromUserAccount(user1SendingAccount).subtract(convertedAmountMoney));
+                    getMoneyFromUserAccount(user2SendingAccount).subtract(convertedAmountMoney));
 
             // adding to listing creator
             setUserAccountBalanceFromMoney(user1ReceivingAccount,
@@ -143,9 +139,19 @@ public class MoneyUtility {
             ArrayList<Transfer> transfers = new ArrayList<>();
             transfers.add(new Transfer(user1SendingAccount, user2ReceivingAccount, amount, TransferType.LISTING));
             transfers.add(new Transfer(user2SendingAccount, user1ReceivingAccount, convertedAmountMoney.getNumberStripped(), TransferType.LISTING));
-            return transfers;
+
+            return new ListingResolveHelper(user1SendingAccount, user1ReceivingAccount, user2SendingAccount, user2ReceivingAccount, amount, convertedAmountMoney.getNumberStripped());
         } else throw new InvalidCurrencyCodeException();
     }
 
+//    public static HashMap<String, BigDecimal> testMoneyToMap(Money money){
+//       HashMap<String, BigDecimal> map = new HashMap<>();
+//       map.put(money.getCurrency().getCurrencyCode(), money.getNumberStripped());
+//        return map;
+//    }
+//    public static Money moneyWrapper(String currencyCode, BigDecimal amount){
+//        return Money.of(amount, currencyCode);
+//    }
+//
 
 }

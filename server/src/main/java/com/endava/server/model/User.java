@@ -67,7 +67,6 @@ public class User implements Serializable {
        return this.accounts.stream().filter(account -> account.getCurrencyCode().equals(currencyCode)).findFirst();
     }
     public void addAccount(String currencyCode) {
-
         this.accounts.add(new UserAccount(this, currencyCode));
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public class UserService {
                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         Set<UserAccount> accounts = user.getAccounts();
         ModelMapper mm = new ModelMapper();
-        List<UserAccountDTOUserView> dto = accounts.stream().map(acc -> mm.map(acc, UserAccountDTOUserView.class)).collect(Collectors.toList());
+        List<UserAccountDTOUserView> dto = accounts.stream().map(acc -> mm.map(acc, UserAccountDTOUserView.class)).sorted(Comparator.comparing(UserAccountDTOUserView::getBalance)).collect(Collectors.toList());
         return dto;
     }
 }

@@ -1,7 +1,7 @@
 package com.endava.server.util;
 
+import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Listing;
-import com.endava.server.model.Transfer;
 import com.endava.server.model.User;
 import com.endava.server.model.UserAccount;
 import com.endava.server.repository.ListingRepository;
@@ -14,15 +14,13 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component
 public class InitialDataLoader implements ApplicationRunner {
@@ -77,9 +75,9 @@ public class InitialDataLoader implements ApplicationRunner {
     //GenerateData
     public void generateUserAndAccountData(String username){
        User user = userRepository.save(generateUserWithUsername(username));
-       UserAccount account = generateUserAccountWithUser(user);
-       MoneyUtility.depositMoneyToAccount(account, getRandomDepositAmount());
-       userAccountRepository.save(account);
+//       UserAccount account = generateUserAccountWithUser(user);
+//       MoneyUtility.depositMoneyToAccount(account, getRandomDepositAmount());
+//       userAccountRepository.save(account);
     }
 
     //Generate Transfers
@@ -100,19 +98,25 @@ public class InitialDataLoader implements ApplicationRunner {
         transferService.adminDepositMoney(userId, currencyCode, amount);
     }
 
-    public Listing generateListing(Long userId){
-        UserAccount acc = userAccountRepository.findAllByUser_Id(userId).get(0);
+    public void generateListing(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+        Optional<UserAccount> accOpt = Optional.empty();
         Random random = new Random();
-        BigDecimal amount = BigDecimal.valueOf(random.nextInt(30));
-        BigDecimal rate = BigDecimal.valueOf(Math.abs(random.nextDouble() + 2));
+        BigDecimal amount = BigDecimal.valueOf(random.nextInt(30)+1);
+        BigDecimal rate = BigDecimal.valueOf(Math.abs(random.nextDouble() + 1.5));
         String targetCurrency = getRandomCurrencyCode();
+        while(accOpt.isEmpty()){
+            accOpt = user.getUserAccountWithCurrency(getRandomCurrencyCode());
+        }
+        UserAccount acc = accOpt.get();
         while(acc.getCurrencyCode().equals(targetCurrency)){
             targetCurrency = getRandomCurrencyCode();
         }
-        return listingRepository.save(new Listing(acc.getUser(), acc.getCurrencyCode(), amount, targetCurrency, rate));
+        listingRepository.save(new Listing(acc.getUser(), acc.getCurrencyCode(), amount, targetCurrency, rate));
     }
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) throws FileNotFoundException {
         String csvFile = "C:/Users/Mitar.Ravilic/OneDrive - ENDAVA/Desktop/postman data/usernames.txt";
         Scanner scanner = new Scanner(new File(csvFile));

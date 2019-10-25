@@ -68,6 +68,8 @@ public class TransferService {
             } else if (recipientAccountOpt.isEmpty()) {
                 senderAccount = senderAccountOpt.get();
                 recipientAccount = new UserAccount(recipient.get(), currencyCode);
+                userAccountRepository.save(recipientAccount);
+                recipient.get().getAccounts().add(recipientAccount);
             } else {
                 senderAccount = senderAccountOpt.get();
                 recipientAccount = recipientAccountOpt.get();
@@ -75,6 +77,7 @@ public class TransferService {
 
             MoneyUtility.withdrawMoneyFromAccount(senderAccount, amount);
             MoneyUtility.depositMoneyToAccount(recipientAccount, amount);
+            userRepository.saveAll(Arrays.asList(sender.get(), recipient.get()));
             Transfer transfer = transferRepository.save(new Transfer(senderAccount, recipientAccount, amount, TransferType.PEER_TRANSFER));
             return new TransferDTO(transfer);
         } else throw new EntityNotFoundException("Sender or Recipient user doesn't exist");
@@ -87,6 +90,7 @@ public class TransferService {
         UserAccount wantedAccount;
         if(accountWithCurrency.isEmpty()) {
             wantedAccount = new UserAccount(user, currencyCode);
+            userAccountRepository.save(wantedAccount);
             user.getAccounts().add(wantedAccount);
         } else {
             wantedAccount = accountWithCurrency.get();
@@ -94,6 +98,7 @@ public class TransferService {
         MoneyUtility.depositMoneyToAccount(wantedAccount, amount);
         Transfer transfer = new Transfer(wantedAccount, wantedAccount, amount, TransferType.DEPOSIT);
         transferRepository.save(transfer);
+        userRepository.save(user);
         return new TransferDTO(transfer);
     }
 
@@ -105,7 +110,9 @@ public class TransferService {
         UserAccount wantedAccount;
         if(accountWithCurrency.isEmpty()) {
             wantedAccount = new UserAccount(user, currencyCode);
+            userAccountRepository.save(wantedAccount);
             user.getAccounts().add(wantedAccount);
+            userRepository.save(user);
         } else {
             wantedAccount = accountWithCurrency.get();
         }
@@ -141,7 +148,9 @@ public class TransferService {
             baseCurrencyAccount = accountWithBaseCurrency.get();
             if (accountWithTargetCurrency.isEmpty()) {
                 targetCurrencyAccount = new UserAccount(user, targetCurrencyCode);
-
+                userAccountRepository.save(targetCurrencyAccount);
+                user.getAccounts().add(targetCurrencyAccount);
+                userRepository.save(user);
             } else {
                 targetCurrencyAccount = accountWithTargetCurrency.get();
             }

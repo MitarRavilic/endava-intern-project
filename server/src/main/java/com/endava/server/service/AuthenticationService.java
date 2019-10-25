@@ -4,6 +4,7 @@ import com.endava.server.dto.response.JwtResponse;
 import com.endava.server.dto.UserDTOfull;
 import com.endava.server.dto.request.UserDTOLogin;
 import com.endava.server.dto.request.UserDTORegister;
+import com.endava.server.exception.CustomBadCredentialsException;
 import com.endava.server.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +44,7 @@ public class AuthenticationService implements UserDetailsService{
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new CustomBadCredentialsException();
         }
     }
 

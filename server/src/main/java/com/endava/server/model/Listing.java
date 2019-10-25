@@ -7,10 +7,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+
 
 
 @Entity
@@ -49,6 +48,7 @@ public class Listing {
 
     public Listing(User user, String baseCurrencyCode, BigDecimal amount, String targetCurrencyCode, BigDecimal rate) {
         this.user = user;
+        this.user.getUserAccountWithCurrency(baseCurrencyCode).ifPresent(userAccount -> userAccount.reserve(amount));
         this.baseCurrencyCode = baseCurrencyCode;
         this.amount = amount;
         this.targetCurrencyCode = targetCurrencyCode;
@@ -62,7 +62,7 @@ public class Listing {
         this.expiresAt.plus(delayInMinutes, ChronoUnit.MINUTES);
     }
 
-    public void resolve() {
+    public void deactivate() {
         this.isActive = false;
     }
 

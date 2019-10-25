@@ -15,5 +15,6 @@ import java.math.BigDecimal;
 public class UserAccountDTOUserView {
    private String currencyCode;
    private BigDecimal balance;
+   private BigDecimal reserved;
 }
 

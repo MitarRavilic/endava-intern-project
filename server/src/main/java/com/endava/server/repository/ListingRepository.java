@@ -17,5 +17,5 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Listing> findAllByBaseCurrencyCode(String baseCurrencyCode);
 
     List<Listing> findAllByTargetCurrencyCode(String targetCurrencyCode);
-    List<Listing> findAllByIsActiveEquals(boolean isActive);
+    List<Listing> findAllByIsActiveEqualsOrderByListingIdAsc(boolean isActive);
 }
