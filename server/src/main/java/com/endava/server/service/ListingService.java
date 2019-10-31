@@ -1,8 +1,10 @@
 package com.endava.server.service;
 
 
+import com.endava.server.dto.request.CurrencyPairRequest;
 import com.endava.server.dto.request.ListingDTOCreate;
 import com.endava.server.dto.response.ListingDTOView;
+import com.endava.server.dto.response.ListingRateBounds;
 import com.endava.server.exception.ListingException;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.*;
@@ -15,7 +17,6 @@ import com.endava.server.util.MoneyUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,7 @@ public class ListingService {
     // == Create methods ==
     @Transactional
     public ListingDTOView createListing(ListingDTOCreate listingDTOCreate) {
-        //if(listingDTOCreate.getTargetCurrencyCode() != listingDTOCreate.getBaseCurrencyCode()) {
+        if(listingDTOCreate.getTargetCurrencyCode() != listingDTOCreate.getBaseCurrencyCode()) {
             User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() ->new ResourceNotFoundException("User", "username", "username") {
             });
             Listing listing = new Listing(user,
@@ -55,7 +56,7 @@ public class ListingService {
 
             ListingDTOView dto = new ListingDTOView(listing);
             return dto;
-       // } else throw new ListingException("Base and Target currencies cannot be similar");
+        } else throw new ListingException("Base and Target currencies cannot be similar");
         }
 
     // == Read methods ==
@@ -114,7 +115,6 @@ public class ListingService {
             ListingResolveHelper result = MoneyUtility.resolveListing(user1, user2, listing.getBaseCurrencyCode(), listing.getTargetCurrencyCode(), listing.getAmount(), listing.getRate());
             accountRepository.saveAll(Arrays.asList(result.getUser1SendingAccount(), result.getUser1ReceivingAccount(), result.getUser2SendingAccount(), result.getUser2ReceivingAccount()));
             listing.setIsActive(false);
-            //this.logger.info(result.getConvertedAmount().toString());
             transferRepository.saveAll(Arrays.asList(
                     new Transfer(result.getUser1SendingAccount(), result.getUser2ReceivingAccount(), result.getAmount(), TransferType.LISTING),
                     new Transfer(result.getUser2SendingAccount(), result.getUser1ReceivingAccount(), result.getConvertedAmount(), TransferType.LISTING)
@@ -124,4 +124,9 @@ public class ListingService {
         }
     }
 
+    // == Utility methods ==
+
+    public ListingRateBounds getPairBounds(String baseCurrency, String targetCurrency){
+       return MoneyUtility.getBoundsForPair(baseCurrency, targetCurrency);
+    }
 }

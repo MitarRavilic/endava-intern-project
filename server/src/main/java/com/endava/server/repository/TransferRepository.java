@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
-    List<Transfer> findAllBySenderAccountOrRecipientAccount(UserAccount senderAccount, UserAccount recipientAccount);
+    List<Transfer> findAllBySenderAccountOrRecipientAccountOrderByCreatedAtDesc(UserAccount senderAccount, UserAccount recipientAccount);
 }

@@ -1,7 +1,6 @@
 package com.endava.server.service;
 
 import com.endava.server.dto.TransferDTO;
-import com.endava.server.dto.response.TransferResponse;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Transfer;
 import com.endava.server.model.TransferType;
@@ -44,7 +43,7 @@ public class TransferService {
        String username = SecurityContextHolder.getContext().getAuthentication().getName();
        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
        UserAccount account = user.getUserAccountWithCurrency(currencyCode).orElseThrow(() -> new ResourceNotFoundException("UserAccount", "currencyCode", currencyCode));
-       List<Transfer> transfers = transferRepository.findAllBySenderAccountOrRecipientAccount(account, account);
+       List<Transfer> transfers = transferRepository.findAllBySenderAccountOrRecipientAccountOrderByCreatedAtDesc(account, account);
        List<TransferDTO> dto = transfers.stream().map(transfer -> new TransferDTO(transfer)).collect(Collectors.toList());
        return dto;
     }
@@ -157,7 +156,7 @@ public class TransferService {
         }
         MoneyUtility.sendAndConvertMoney(baseCurrencyAccount, targetCurrencyAccount, amount);
         userAccountRepository.saveAll(Arrays.asList(baseCurrencyAccount, targetCurrencyAccount));
-       Transfer transfer = new Transfer(baseCurrencyAccount, targetCurrencyAccount, amount, TransferType.CONVERSION);
+      Transfer transfer = transferRepository.save(new Transfer(baseCurrencyAccount, targetCurrencyAccount, amount, TransferType.CONVERSION));
        return new TransferDTO(transfer);
     }
 

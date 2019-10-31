@@ -34,7 +34,7 @@ public class TransferController {
         return ResponseEntity.ok(transferService.getAllTransfers());
     }
 
-    @GetMapping("/{{currencyCode}}")
+    @GetMapping("/account/{currencyCode}")
     public ResponseEntity<?> getAllTransfersForUserAccount(@PathVariable String currencyCode) {
     List<TransferDTO> dto = transferService.getAllTransfersForAccount(currencyCode);
     return ResponseEntity.ok(dto);

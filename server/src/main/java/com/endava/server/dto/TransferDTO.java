@@ -24,6 +24,8 @@ public class TransferDTO {
 
    private BigDecimal amount;
 
+   private Long createdAt;
+
    private TransferType transferType;
 
    public TransferDTO(Transfer transfer){
@@ -32,6 +34,7 @@ public class TransferDTO {
        this.recipientUsername = transfer.getSenderAccount().getUser().getUsername();
        this.recipientCurrencyCode = transfer.getRecipientCurrencyCode();
        this.amount = transfer.getAmount();
+       this.createdAt = transfer.getCreatedAt().toInstant().toEpochMilli();
        this.transferType = transfer.getTransferType();
    }
 }

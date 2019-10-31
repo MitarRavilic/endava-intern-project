@@ -3,6 +3,7 @@ package com.endava.server.controller;
 import com.endava.server.dto.request.ListingDTOCreate;
 import com.endava.server.dto.request.ListingResolveRequest;
 import com.endava.server.dto.response.ListingDTOView;
+import com.endava.server.dto.response.ListingRateBounds;
 import com.endava.server.service.ListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,9 @@ public class ListingController {
         listingService.resolveListing(request.getListingId());
         return ResponseEntity.ok().build();
     }
-
+    @GetMapping("/bounds/{baseCurrency}/{targetCurrency}")
+    public ResponseEntity<?> getPairBounds(@PathVariable String baseCurrency, @PathVariable String targetCurrency) {
+       ListingRateBounds dto = listingService.getPairBounds(baseCurrency, targetCurrency);
+       return ResponseEntity.ok(dto);
+    }
 }
