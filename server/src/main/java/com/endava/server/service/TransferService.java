@@ -1,6 +1,7 @@
 package com.endava.server.service;
 
 import com.endava.server.dto.TransferDTO;
+import com.endava.server.dto.response.RateResponse;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Transfer;
 import com.endava.server.model.TransferType;
@@ -160,5 +161,8 @@ public class TransferService {
        return new TransferDTO(transfer);
     }
 
+    public RateResponse getRate(String baseCurrency, String targetCurrency) {
+        return MoneyUtility.getRateForPair(baseCurrency, targetCurrency);
+    }
 
 }

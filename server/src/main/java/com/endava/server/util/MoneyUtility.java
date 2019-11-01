@@ -1,6 +1,7 @@
 package com.endava.server.util;
 
 import com.endava.server.dto.response.ListingRateBounds;
+import com.endava.server.dto.response.RateResponse;
 import com.endava.server.exception.InvalidCurrencyCodeException;
 import com.endava.server.exception.ResourceNotFoundException;
 import com.endava.server.model.Transfer;
@@ -15,6 +16,7 @@ import org.javamoney.moneta.Money;
 
 import javax.money.convert.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class MoneyUtility {
@@ -148,8 +150,12 @@ public class MoneyUtility {
         } else throw new InvalidCurrencyCodeException();
     }
 
-    public static ListingRateBounds getBoundsForPair(String baseCurrency, String targetCurrency){
+    public static RateResponse getRateForPair(String baseCurrency, String targetCurrency) {
+        BigDecimal rate = BigDecimal.valueOf(rateProvider.getExchangeRate(baseCurrency, targetCurrency).getFactor().doubleValueExact());
+        return new RateResponse(rate);
+    }
 
+    public static ListingRateBounds getBoundsForPair(String baseCurrency, String targetCurrency){
       BigDecimal rate = BigDecimal.valueOf(rateProvider.getExchangeRate(baseCurrency, targetCurrency).getFactor().doubleValueExact());
       return new ListingRateBounds(rate.multiply(BigDecimal.valueOf(lowerBound)), rate, rate.multiply(BigDecimal.valueOf(upperBound)));
     }

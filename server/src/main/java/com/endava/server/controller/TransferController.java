@@ -5,6 +5,7 @@ import com.endava.server.dto.request.ConvertMoneyRequest;
 import com.endava.server.dto.request.DepositRequest;
 import com.endava.server.dto.request.SendMoneyRequest;
 import com.endava.server.dto.request.WithdrawRequest;
+import com.endava.server.dto.response.RateResponse;
 import com.endava.server.service.TransferService;
 import com.endava.server.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,11 @@ public class TransferController {
     return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/conversions/{baseCurrency}/{targetCurrency}")
+    public ResponseEntity<?> getRateForPair(@PathVariable String baseCurrency, @PathVariable String targetCurrency){
+       RateResponse dto = transferService.getRate(baseCurrency, targetCurrency);
+       return ResponseEntity.ok(dto);
+    }
 
     // sending same currency between 2 users
     @PostMapping(path = "/{recipientId}/{currencyCode}/{amount}")

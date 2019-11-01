@@ -44,20 +44,24 @@ public class ListingService {
     // == Create methods ==
     @Transactional
     public ListingDTOView createListing(ListingDTOCreate listingDTOCreate) {
-        if(listingDTOCreate.getTargetCurrencyCode() != listingDTOCreate.getBaseCurrencyCode()) {
-            User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() ->new ResourceNotFoundException("User", "username", "username") {
-            });
-            Listing listing = new Listing(user,
-                    listingDTOCreate.getBaseCurrencyCode(),
-                    listingDTOCreate.getAmount(),
-                    listingDTOCreate.getTargetCurrencyCode(),
-                    listingDTOCreate.getRate());
-            //listingRepository.save(listing);
+        if (listingDTOCreate.getTargetCurrencyCode() != listingDTOCreate.getBaseCurrencyCode()) {
+            ListingRateBounds bounds = MoneyUtility.getBoundsForPair(listingDTOCreate.getBaseCurrencyCode(), listingDTOCreate.getTargetCurrencyCode());
+            if (listingDTOCreate.getRate().compareTo(bounds.getRateMax()) < 0 && listingDTOCreate.getRate().compareTo(bounds.getRateMin()) > 0) {
+                User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new ResourceNotFoundException("User", "username", "username") {
+                });
+                Listing listing = new Listing(user,
+                        listingDTOCreate.getBaseCurrencyCode(),
+                        listingDTOCreate.getAmount(),
+                        listingDTOCreate.getTargetCurrencyCode(),
+                        listingDTOCreate.getRate());
+                //listingRepository.save(listing);
 
-            ListingDTOView dto = new ListingDTOView(listing);
-            return dto;
-        } else throw new ListingException("Base and Target currencies cannot be similar");
+                ListingDTOView dto = new ListingDTOView(listing);
+                return dto;
+            } else throw new ListingException("listing rate out of bounds");
+            } else throw new ListingException("Base and Target currencies cannot be similar");
         }
+
 
     // == Read methods ==
     public List<ListingDTOView> getAllListings(){
